@@ -1,3 +1,6 @@
+# Keep PATH entries unique
+typeset -U path PATH
+
 ZSH=$HOME/.oh-my-zsh
 
 # You can change the theme with another one from https://github.com/robbyrussell/oh-my-zsh/wiki/themes
@@ -50,8 +53,10 @@ load-nvmrc() {
     fi
   fi
 }
-type -a nvm > /dev/null && add-zsh-hook chpwd load-nvmrc
-type -a nvm > /dev/null && load-nvmrc
+
+# NVM-managed Node versions. Uncomment when using Node
+# type -a nvm > /dev/null && add-zsh-hook chpwd load-nvmrc
+# type -a nvm > /dev/null && load-nvmrc
 
 # Rails and Ruby uses the local `bin` folder to store binstubs.
 # So instead of running `bin/rails` like the doc says, just run `rails`
@@ -73,3 +78,6 @@ export PYTHONBREAKPOINT=ipdb.set_trace
 
 # Set vim as the default CLI editor
 export EDITOR=vim
+
+# Set bin folder to $PATH
+export PATH="$HOME/code/lucaszprado/dotfiles/bin:$PATH"
