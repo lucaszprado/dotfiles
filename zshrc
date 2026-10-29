@@ -76,8 +76,40 @@ export EDITOR=code
 # Set ipdb as the default Python debugger
 export PYTHONBREAKPOINT=ipdb.set_trace
 
-# Set vim as the default CLI editor
-export EDITOR=vim
-
 # Set bin folder to $PATH
 export PATH="$HOME/code/lucaszprado/dotfiles/bin:$PATH"
+
+
+# Show files changed between two commits, with the latest commit that
+# touched each file as of NEW_COMMIT.
+#
+# Usage: git-file-report OLD_COMMIT NEW_COMMIT
+# Example: git-file-report 3fa66b5 ddf12f0
+#
+# Prints aligned columns: FILE, COMMIT, DATE, MESSAGE.
+# Accepts commit hashes, branch names, or tags.
+# Works from any directory inside a Git repository.
+# Shows net changes between the two revisions, not every intermediate edit.
+git-file-report() {
+  if [ "$#" -ne 2 ]; then
+    printf 'Usage: git-file-report OLD_COMMIT NEW_COMMIT\n' >&2
+    return 1
+  fi
+
+  local old="$1"
+  local new="$2"
+  local repo_root
+
+  repo_root=$(git rev-parse --show-toplevel) || return 1
+
+  {
+    printf 'FILE\tCOMMIT\tDATE\tMESSAGE\n'
+
+    git -C "$repo_root" diff --name-only -z "$old" "$new" |
+    while IFS= read -r -d '' file; do
+      printf '%s\t' "$file"
+      git -C "$repo_root" --no-pager log -1 \
+        --format='%h%x09%cs%x09%s' "$new" -- "$file"
+    done
+  } | column -t -s $'\t'
+}
